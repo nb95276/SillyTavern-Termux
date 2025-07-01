@@ -192,34 +192,90 @@ else
 fi
 
 # =========================================================================
-# 步骤 6/8：下载菜单脚本与配置文件
+# 步骤 6/8：创建菜单脚本与配置文件
 # =========================================================================
-echo -e "\n${CYAN}${BOLD}==== 步骤 6/8：下载菜单脚本与配置文件 ====${NC}"
-echo -e "${YELLOW}${BOLD}💕 正在下载管理脚本...${NC}"
+echo -e "\n${CYAN}${BOLD}==== 步骤 6/8：创建菜单脚本与配置文件 ====${NC}"
+echo -e "${YELLOW}${BOLD}💕 正在创建管理脚本...${NC}"
 
 MENU_PATH="$HOME/menu.sh"
 ENV_PATH="$HOME/.env"
 
-if [ -f "$MENU_PATH" ]; then
-    echo -e "${YELLOW}${BOLD}>> ✅ menu.sh 已存在，跳过下载。${NC}"
+# 创建.env配置文件
+if [ ! -f "$ENV_PATH" ]; then
+    echo -e "${YELLOW}${BOLD}>> 📝 创建配置文件...${NC}"
+    cat > "$ENV_PATH" << 'EOF'
+INSTALL_VERSION=20250701
+MENU_VERSION=20250701
+# 小红书专版 - 优化版本，去除字体下载，增加多源支持
+EOF
+    echo -e "${GREEN}${BOLD}>> ✅ 配置文件创建成功${NC}"
 else
-    if smart_download "nb95276/SillyTavern-Termux/raw/main/menu.sh" "$MENU_PATH" "菜单脚本"; then
-        chmod +x "$MENU_PATH"
-    else
-        echo -e "${RED}${BOLD}>> 💔 menu.sh 下载失败！${NC}"
-        exit 1
-    fi
+    echo -e "${YELLOW}${BOLD}>> ✅ .env 已存在，跳过创建。${NC}"
 fi
 
-if [ -f "$ENV_PATH" ]; then
-    echo -e "${YELLOW}${BOLD}>> ✅ .env 已存在，跳过下载。${NC}"
-else
-    if smart_download "nb95276/SillyTavern-Termux/raw/main/.env" "$ENV_PATH" "配置文件"; then
-        echo -e "${GREEN}${BOLD}>> ✅ 配置文件下载成功${NC}"
-    else
-        echo -e "${RED}${BOLD}>> 💔 .env 下载失败！${NC}"
-        exit 1
+# 尝试下载菜单脚本，如果失败则创建简化版本
+if [ ! -f "$MENU_PATH" ]; then
+    echo -e "${YELLOW}${BOLD}>> 📝 尝试下载菜单脚本...${NC}"
+
+    # 尝试下载
+    download_success=false
+    for mirror in "${GITHUB_MIRRORS[@]}"; do
+        domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
+
+        if timeout 30 curl -fsSL --connect-timeout 10 --max-time 30 \
+            -o "$MENU_PATH" "$mirror/nb95276/SillyTavern-Termux/raw/main/menu.sh" 2>/dev/null; then
+
+            if [ -f "$MENU_PATH" ] && [ $(stat -c%s "$MENU_PATH" 2>/dev/null || echo 0) -gt 100 ]; then
+                echo -e "${GREEN}${BOLD}>> ✅ 菜单脚本下载成功！来源: $domain${NC}"
+                chmod +x "$MENU_PATH"
+                download_success=true
+                break
+            else
+                rm -f "$MENU_PATH"
+            fi
+        fi
+    done
+
+    # 如果下载失败，创建简化版菜单
+    if [ "$download_success" = false ]; then
+        echo -e "${YELLOW}${BOLD}>> ⚠️ 下载失败，创建简化版菜单...${NC}"
+        cat > "$MENU_PATH" << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+# SillyTavern-Termux 简化菜单
+
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[1;36m'
+NC='\033[0m'
+
+echo -e "${CYAN}🌸 SillyTavern-Termux 小红书专版 🌸${NC}"
+echo -e "${YELLOW}💕 欢迎使用简化版菜单${NC}"
+echo ""
+echo "1. 启动 SillyTavern"
+echo "2. 退出"
+echo ""
+read -p "请选择 (1-2): " choice
+
+case $choice in
+    1)
+        echo -e "${GREEN}>> 🚀 启动 SillyTavern...${NC}"
+        cd "$HOME/SillyTavern" && node server.js
+        ;;
+    2)
+        echo -e "${YELLOW}>> 👋 再见！${NC}"
+        exit 0
+        ;;
+    *)
+        echo -e "${YELLOW}>> ⚠️ 无效选择${NC}"
+        ;;
+esac
+EOF
+        chmod +x "$MENU_PATH"
+        echo -e "${GREEN}${BOLD}>> ✅ 简化版菜单创建成功${NC}"
     fi
+else
+    echo -e "${YELLOW}${BOLD}>> ✅ menu.sh 已存在，跳过创建。${NC}"
 fi
 
 source "$ENV_PATH" 2>/dev/null || true
