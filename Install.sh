@@ -195,8 +195,15 @@ else
     for mirror in "${GITHUB_MIRRORS[@]}"; do
         domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
         echo -e "${YELLOW}${BOLD}>> 🔄 尝试从 $domain 克隆...${NC}"
-        
-        if timeout 300 git clone "$mirror/SillyTavern/SillyTavern" "$HOME/SillyTavern" 2>/dev/null; then
+
+        # 优化git clone参数：浅克隆+单分支+压缩
+        if timeout 120 git clone --depth=1 --single-branch --branch=release \
+            --config http.postBuffer=1048576000 \
+            --config http.maxRequestBuffer=100M \
+            --config core.preloadindex=true \
+            --config core.fscache=true \
+            --config gc.auto=0 \
+            "$mirror/SillyTavern/SillyTavern" "$HOME/SillyTavern" 2>/dev/null; then
             echo -e "${GREEN}${BOLD}>> ✅ 克隆成功！来源: $domain${NC}"
             clone_success=true
             break
@@ -207,8 +214,39 @@ else
     done
     
     if [ "$clone_success" = false ]; then
-        echo -e "${RED}${BOLD}>> 💔 所有源都失败了，请检查网络连接。${NC}"
-        exit 1
+        echo -e "${YELLOW}${BOLD}>> ⚠️ Git克隆失败，尝试备用方案：下载ZIP包...${NC}"
+
+        # 备用方案：下载ZIP包
+        for mirror in "${GITHUB_MIRRORS[@]}"; do
+            domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+            echo -e "${YELLOW}${BOLD}>> 🔄 尝试从 $domain 下载ZIP...${NC}"
+
+            zip_url="$mirror/SillyTavern/SillyTavern/archive/refs/heads/release.zip"
+            if timeout 60 curl -k -fsSL --connect-timeout 10 --max-time 60 \
+                -o "/tmp/sillytavern.zip" "$zip_url" 2>/dev/null; then
+
+                echo -e "${CYAN}${BOLD}>> 📦 正在解压ZIP包...${NC}"
+                cd "$HOME" || exit 1
+
+                if unzip -q "/tmp/sillytavern.zip" 2>/dev/null; then
+                    mv "SillyTavern-release" "SillyTavern" 2>/dev/null || true
+                    rm -f "/tmp/sillytavern.zip"
+
+                    if [ -d "$HOME/SillyTavern" ]; then
+                        echo -e "${GREEN}${BOLD}>> ✅ ZIP下载成功！来源: $domain${NC}"
+                        clone_success=true
+                        break
+                    fi
+                fi
+                rm -f "/tmp/sillytavern.zip"
+            fi
+            echo -e "${YELLOW}${BOLD}>> ❌ ZIP下载失败，尝试下一个源...${NC}"
+        done
+
+        if [ "$clone_success" = false ]; then
+            echo -e "${RED}${BOLD}>> 💔 所有下载方式都失败了，请检查网络连接。${NC}"
+            exit 1
+        fi
     fi
     
     echo -e "${GREEN}${BOLD}>> 🎉 步骤 5/8 完成：SillyTavern 仓库已克隆。${NC}"
