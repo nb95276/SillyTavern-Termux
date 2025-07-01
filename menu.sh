@@ -214,6 +214,278 @@ help_menu() {
 }
 
 # =========================================================================
+# 5. 网络监听设置
+# =========================================================================
+network_config_menu() {
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}==== 🌐 网络监听设置 ====${NC}"
+        echo -e "${YELLOW}${BOLD}💡 网络监听功能说明：${NC}"
+        echo -e "${BLUE}${BOLD}• 关闭：只能在手机本地访问（更安全）${NC}"
+        echo -e "${BLUE}${BOLD}• 开启：可在同WiFi下其他设备访问（如电脑）${NC}"
+        echo ""
+        echo -e "${YELLOW}${BOLD}0. 返回主菜单${NC}"
+        echo -e "${GREEN}${BOLD}1. 🔒 关闭网络监听（安全模式）${NC}"
+        echo -e "${MAGENTA}${BOLD}2. 🌍 开启网络监听（共享模式）${NC}"
+        echo -e "${CYAN}${BOLD}3. 🔄 恢复默认配置${NC}"
+        echo -e "${CYAN}${BOLD}==================${NC}"
+        echo -ne "${CYAN}${BOLD}💕 请选择操作（0-3）：${NC}"
+        read -n1 config_choice; echo
+
+        case "$config_choice" in
+            0) break ;;
+            1|2|3)
+                cd "$HOME/SillyTavern" || {
+                    echo -e "${RED}${BOLD}>> 💔 SillyTavern目录不存在！${NC}"
+                    press_any_key
+                    continue
+                }
+
+                if [ ! -f config.yaml ] && [ "$config_choice" != "3" ]; then
+                    echo -e "${RED}${BOLD}>> 💔 未找到config.yaml文件！${NC}"
+                    echo -e "${YELLOW}${BOLD}>> 💡 请先启动一次SillyTavern生成配置文件${NC}"
+                    press_any_key
+                    continue
+                fi
+
+                # 备份原配置
+                [ ! -f config.yaml.bak ] && cp config.yaml config.yaml.bak 2>/dev/null
+
+                if [ "$config_choice" = "1" ]; then
+                    # 关闭网络监听
+                    sed -i 's/^listen: true$/listen: false/' config.yaml 2>/dev/null
+                    sed -i 's/^enableUserAccounts: true$/enableUserAccounts: false/' config.yaml 2>/dev/null
+                    sed -i 's/^enableDiscreetLogin: true$/enableDiscreetLogin: false/' config.yaml 2>/dev/null
+                    sed -i 's/^  - 0\.0\.0\.0\/0$/  - 127.0.0.1/' config.yaml 2>/dev/null
+                    echo -e "${GREEN}${BOLD}>> ✅ 网络监听已关闭（安全模式）${NC}"
+                    echo -e "${CYAN}${BOLD}>> 💡 现在只能通过 http://127.0.0.1:8000 访问${NC}"
+
+                elif [ "$config_choice" = "2" ]; then
+                    # 开启网络监听
+                    sed -i 's/^listen: false$/listen: true/' config.yaml 2>/dev/null
+                    sed -i 's/^enableUserAccounts: false$/enableUserAccounts: true/' config.yaml 2>/dev/null
+                    sed -i 's/^enableDiscreetLogin: false$/enableDiscreetLogin: true/' config.yaml 2>/dev/null
+                    sed -i 's/^  - 127\.0\.0\.1$/  - 0.0.0.0\/0/' config.yaml 2>/dev/null
+                    echo -e "${GREEN}${BOLD}>> ✅ 网络监听已开启（共享模式）${NC}"
+                    echo -e "${CYAN}${BOLD}>> 💡 现在可以通过手机IP地址在其他设备访问${NC}"
+                    echo -e "${YELLOW}${BOLD}>> ⚠️ 注意：请确保在安全的网络环境下使用${NC}"
+
+                else
+                    # 恢复默认配置
+                    if [ ! -f config.yaml.bak ]; then
+                        echo -e "${YELLOW}${BOLD}>> ⚠️ 未找到备份文件，无法恢复${NC}"
+                    else
+                        cp config.yaml.bak config.yaml
+                        echo -e "${GREEN}${BOLD}>> ✅ 已恢复默认配置${NC}"
+                    fi
+                fi
+                press_any_key
+                ;;
+            *)
+                echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+# =========================================================================
+# 6. 酒馆插件管理
+# =========================================================================
+plugin_menu() {
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}==== 🧩 酒馆插件管理 ====${NC}"
+        echo -e "${YELLOW}${BOLD}💡 插件可以为SillyTavern添加更多功能！${NC}"
+        echo ""
+        echo -e "${YELLOW}${BOLD}0. 返回主菜单${NC}"
+        echo -e "${MAGENTA}${BOLD}1. 📦 安装插件${NC}"
+        echo -e "${BLUE}${BOLD}2. 🗑️ 卸载插件${NC}"
+        echo -e "${CYAN}${BOLD}==================${NC}"
+        echo -ne "${CYAN}${BOLD}💕 请选择操作（0-2）：${NC}"
+        read -n1 plugin_choice; echo
+
+        case "$plugin_choice" in
+            0) break ;;
+            1) plugin_install_menu ;;
+            2) plugin_uninstall_menu ;;
+            *)
+                echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+# =========================================================================
+# 插件安装菜单
+# =========================================================================
+plugin_install_menu() {
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}==== 📦 插件安装 ====${NC}"
+        echo -e "${YELLOW}${BOLD}0. 返回上级菜单${NC}"
+        echo -e "${MAGENTA}${BOLD}1. 🎯 酒馆助手（多功能扩展）${NC}"
+        echo -e "${BLUE}${BOLD}2. 🧠 记忆表格（结构化记忆）${NC}"
+        echo -e "${CYAN}${BOLD}==================${NC}"
+        echo -ne "${CYAN}${BOLD}💕 请选择要安装的插件（0-2）：${NC}"
+        read -n1 install_choice; echo
+
+        case "$install_choice" in
+            0) break ;;
+            1)
+                clear
+                echo -e "${MAGENTA}${BOLD}==== 🎯 酒馆助手 ====${NC}"
+                echo -e "${YELLOW}${BOLD}📍 仓库：${NC}N0VI028/JS-Slash-Runner"
+                echo -e "${CYAN}${BOLD}✨ 功能简介：${NC}"
+                echo -e "${BLUE}${BOLD}• 支持在对话中创建交互式界面元素${NC}"
+                echo -e "${BLUE}${BOLD}• 可用jQuery操作SillyTavern的DOM${NC}"
+                echo -e "${BLUE}${BOLD}• 作为后端中转，连接外部应用${NC}"
+                echo -e "${BLUE}${BOLD}• 通过iframe安全运行外部脚本${NC}"
+                echo ""
+                echo -e "${YELLOW}${BOLD}⚠️ 安全提示：${NC}"
+                echo -e "${RED}${BOLD}• 插件允许执行自定义JavaScript代码${NC}"
+                echo -e "${RED}${BOLD}• 请确保脚本来源安全可信${NC}"
+                echo ""
+                echo -ne "${YELLOW}${BOLD}💕 是否安装酒馆助手？(y/n)：${NC}"
+                read -n1 ans; echo
+                if [[ "$ans" =~ [yY] ]]; then
+                    install_plugin "JS-Slash-Runner" "N0VI028/JS-Slash-Runner" "酒馆助手"
+                fi
+                ;;
+            2)
+                clear
+                echo -e "${BLUE}${BOLD}==== 🧠 记忆表格 ====${NC}"
+                echo -e "${YELLOW}${BOLD}📍 仓库：${NC}muyoou/st-memory-enhancement"
+                echo -e "${CYAN}${BOLD}✨ 功能简介：${NC}"
+                echo -e "${BLUE}${BOLD}• 为AI注入结构化长期记忆能力${NC}"
+                echo -e "${BLUE}${BOLD}• 支持角色设定、关键事件记录${NC}"
+                echo -e "${BLUE}${BOLD}• 通过直观表格管理AI记忆${NC}"
+                echo -e "${BLUE}${BOLD}• 支持导出、分享和自定义结构${NC}"
+                echo ""
+                echo -e "${YELLOW}${BOLD}📝 使用说明：${NC}"
+                echo -e "${CYAN}${BOLD}• 仅在"聊天补全模式"下工作${NC}"
+                echo ""
+                echo -ne "${YELLOW}${BOLD}💕 是否安装记忆表格？(y/n)：${NC}"
+                read -n1 ans; echo
+                if [[ "$ans" =~ [yY] ]]; then
+                    install_plugin "st-memory-enhancement" "muyoou/st-memory-enhancement" "记忆表格"
+                fi
+                ;;
+            *)
+                echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+# =========================================================================
+# 插件安装核心函数
+# =========================================================================
+install_plugin() {
+    local plugin_dir="$1"
+    local repo_url="$2"
+    local plugin_name="$3"
+
+    local PLUGIN_PATH="$HOME/SillyTavern/public/scripts/extensions/third-party/$plugin_dir"
+
+    if [ -d "$PLUGIN_PATH" ]; then
+        echo -e "${YELLOW}${BOLD}>> ✅ $plugin_name 已存在，无需重复安装${NC}"
+        press_any_key
+        return
+    fi
+
+    echo -e "${CYAN}${BOLD}>> 🔄 正在安装 $plugin_name...${NC}"
+
+    # 尝试多个GitHub加速源
+    local success=false
+    for mirror in "https://gitproxy.click/https://github.com" \
+                  "https://github.tbedu.top/https://github.com" \
+                  "https://gh.llkk.cc/https://github.com" \
+                  "https://gh.ddlc.top/https://github.com" \
+                  "https://github.com"; do
+
+        local domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
+
+        if timeout 60 git clone --depth=1 "$mirror/$repo_url" "$PLUGIN_PATH" 2>/dev/null; then
+            echo -e "${GREEN}${BOLD}>> ✅ $plugin_name 安装成功！来源: $domain${NC}"
+            success=true
+            break
+        else
+            echo -e "${YELLOW}${BOLD}>> ❌ 失败，尝试下一个源...${NC}"
+            rm -rf "$PLUGIN_PATH" 2>/dev/null
+        fi
+    done
+
+    if [ "$success" = false ]; then
+        echo -e "${RED}${BOLD}>> 💔 $plugin_name 安装失败，请检查网络连接${NC}"
+    fi
+
+    press_any_key
+}
+
+# =========================================================================
+# 插件卸载菜单
+# =========================================================================
+plugin_uninstall_menu() {
+    local PLUGIN_ROOT="$HOME/SillyTavern/public/scripts/extensions/third-party"
+
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}==== 🗑️ 插件卸载 ====${NC}"
+        echo -e "${YELLOW}${BOLD}0. 返回上级菜单${NC}"
+
+        if [ ! -d "$PLUGIN_ROOT" ]; then
+            echo -e "${YELLOW}${BOLD}>> 📂 插件目录不存在，无插件可卸载${NC}"
+            press_any_key
+            break
+        fi
+
+        # 获取已安装的插件列表
+        mapfile -t plugin_dirs < <(find "$PLUGIN_ROOT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+
+        if [ ${#plugin_dirs[@]} -eq 0 ]; then
+            echo -e "${YELLOW}${BOLD}>> 📭 未检测到已安装的插件${NC}"
+            press_any_key
+            break
+        fi
+
+        # 显示插件列表
+        for i in "${!plugin_dirs[@]}"; do
+            plugin_name=$(basename "${plugin_dirs[$i]}")
+            echo -e "${BLUE}${BOLD}$((i+1)). 🧩 ${GREEN}${BOLD}${plugin_name}${NC}"
+        done
+
+        echo -e "${CYAN}${BOLD}==================${NC}"
+        echo -ne "${CYAN}${BOLD}💕 请输入要卸载的插件序号（或0返回）：${NC}"
+        read -r idx
+
+        if [[ "$idx" == "0" ]]; then
+            break
+        fi
+
+        if [[ "$idx" =~ ^[1-9][0-9]*$ ]] && [ "$idx" -le "${#plugin_dirs[@]}" ]; then
+            plugin_name=$(basename "${plugin_dirs[$((idx-1))]}")
+            echo -ne "${YELLOW}${BOLD}💔 确定要卸载 ${plugin_name} 吗？(y/n)：${NC}"
+            read -n1 ans; echo
+
+            if [[ "$ans" =~ [yY] ]]; then
+                rm -rf "${plugin_dirs[$((idx-1))]}"
+                echo -e "${GREEN}${BOLD}>> ✅ 插件 ${plugin_name} 已成功卸载${NC}"
+            else
+                echo -e "${YELLOW}${BOLD}>> 🙅‍♀️ 已取消卸载操作${NC}"
+            fi
+            press_any_key
+        else
+            echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
+            sleep 1
+        fi
+    done
+}
+
+# =========================================================================
 # 主菜单循环
 # =========================================================================
 while true; do
@@ -229,12 +501,14 @@ while true; do
     echo -e "${BLUE}${BOLD}2. 🔄 更新 SillyTavern${NC}"
     echo -e "${YELLOW}${BOLD}3. 🎀 简单配置${NC}"
     echo -e "${MAGENTA}${BOLD}4. 🍻 酒馆福利互助群：877957256${NC}"
+    echo -e "${CYAN}${BOLD}5. 🌐 网络监听设置${NC}"
+    echo -e "${BRIGHT_BLUE}${BOLD}6. 🧩 酒馆插件管理${NC}"
     echo -e "${CYAN}${BOLD}=================================${NC}"
-    echo -ne "${CYAN}${BOLD}💕 请选择操作（0-4）：${NC}"
+    echo -ne "${CYAN}${BOLD}💕 请选择操作（0-6）：${NC}"
     read -n1 choice; echo
     
     case "$choice" in
-        0) 
+        0)
             echo -e "${RED}${BOLD}>> 👋 再见啦姐妹，期待下次见面~${NC}"
             sleep 1
             clear
@@ -244,7 +518,9 @@ while true; do
         2) update_tavern ;;
         3) simple_config_menu ;;
         4) help_menu ;;
-        *) 
+        5) network_config_menu ;;
+        6) plugin_menu ;;
+        *)
             echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
             sleep 1
             ;;
