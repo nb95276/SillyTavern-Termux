@@ -170,7 +170,7 @@ else
     # 尝试多个镜像源克隆
     clone_success=false
     for mirror in "${GITHUB_MIRRORS[@]}"; do
-        local domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
         echo -e "${YELLOW}${BOLD}>> 🔄 尝试从 $domain 克隆...${NC}"
         
         if timeout 300 git clone "$mirror/SillyTavern/SillyTavern" "$HOME/SillyTavern" 2>/dev/null; then
