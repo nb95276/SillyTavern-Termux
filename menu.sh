@@ -486,6 +486,171 @@ plugin_uninstall_menu() {
 }
 
 # =========================================================================
+# 7. 脚本更新管理
+# =========================================================================
+script_update_menu() {
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}==== 🔄 脚本更新管理 ====${NC}"
+        echo -e "${YELLOW}${BOLD}💡 保持脚本最新，享受最新功能！${NC}"
+        echo ""
+        echo -e "${YELLOW}${BOLD}0. 返回主菜单${NC}"
+        echo -e "${GREEN}${BOLD}1. 🔍 检查脚本更新${NC}"
+        echo -e "${BLUE}${BOLD}2. 📋 查看更新日志${NC}"
+        echo -e "${CYAN}${BOLD}==================${NC}"
+        echo -ne "${CYAN}${BOLD}💕 请选择操作（0-2）：${NC}"
+        read -n1 update_choice; echo
+
+        case "$update_choice" in
+            0) break ;;
+            1) check_script_update ;;
+            2) show_update_log ;;
+            *)
+                echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+# =========================================================================
+# 检查脚本更新
+# =========================================================================
+check_script_update() {
+    echo -e "\n${CYAN}${BOLD}==== 🔍 检查脚本更新 ====${NC}"
+    echo -e "${YELLOW}${BOLD}>> 正在检查GitHub上的最新版本...${NC}"
+
+    # 获取当前版本
+    local current_version=$(grep "MENU_VERSION=" "$0" | head -n1 | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    echo -e "${BLUE}${BOLD}>> 当前版本：$current_version${NC}"
+
+    # 尝试获取远程版本
+    local remote_version=""
+    local success=false
+
+    for mirror in "https://gitproxy.click/https://raw.githubusercontent.com" \
+                  "https://github.tbedu.top/https://raw.githubusercontent.com" \
+                  "https://gh.llkk.cc/https://raw.githubusercontent.com" \
+                  "https://gh.ddlc.top/https://raw.githubusercontent.com" \
+                  "https://raw.githubusercontent.com"; do
+
+        local domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
+
+        if remote_version=$(timeout 15 curl -k -fsSL "$mirror/nb95276/SillyTavern-Termux/main/menu.sh" | grep "MENU_VERSION=" | head -n1 | cut -d'=' -f2 2>/dev/null); then
+            if [ -n "$remote_version" ]; then
+                echo -e "${GREEN}${BOLD}>> 远程版本：$remote_version${NC}"
+                success=true
+                break
+            fi
+        fi
+        echo -e "${YELLOW}${BOLD}>> 获取失败，尝试下一个源...${NC}"
+    done
+
+    if [ "$success" = false ]; then
+        echo -e "${RED}${BOLD}>> 💔 无法获取远程版本信息，请检查网络连接${NC}"
+        press_any_key
+        return
+    fi
+
+    # 比较版本
+    if [ "$current_version" = "$remote_version" ]; then
+        echo -e "${GREEN}${BOLD}>> ✅ 脚本已是最新版本！${NC}"
+    elif [ "$current_version" = "unknown" ]; then
+        echo -e "${YELLOW}${BOLD}>> ⚠️ 无法确定当前版本，建议更新${NC}"
+        echo -ne "${CYAN}${BOLD}>> 💕 是否更新脚本？(y/n)：${NC}"
+        read -n1 ans; echo
+        if [[ "$ans" =~ [yY] ]]; then
+            update_script
+        fi
+    else
+        echo -e "${MAGENTA}${BOLD}>> 🎉 发现新版本！${NC}"
+        echo -ne "${CYAN}${BOLD}>> 💕 是否立即更新？(y/n)：${NC}"
+        read -n1 ans; echo
+        if [[ "$ans" =~ [yY] ]]; then
+            update_script
+        fi
+    fi
+
+    press_any_key
+}
+
+# =========================================================================
+# 更新脚本
+# =========================================================================
+update_script() {
+    echo -e "\n${CYAN}${BOLD}==== 🔄 更新脚本 ====${NC}"
+    echo -e "${YELLOW}${BOLD}>> 正在下载最新版本...${NC}"
+
+    local success=false
+    for mirror in "https://gitproxy.click/https://raw.githubusercontent.com" \
+                  "https://github.tbedu.top/https://raw.githubusercontent.com" \
+                  "https://gh.llkk.cc/https://raw.githubusercontent.com" \
+                  "https://gh.ddlc.top/https://raw.githubusercontent.com" \
+                  "https://raw.githubusercontent.com"; do
+
+        local domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
+
+        if timeout 30 curl -k -fsSL -o "$HOME/menu.sh.new" "$mirror/nb95276/SillyTavern-Termux/main/menu.sh" 2>/dev/null; then
+            if [ -f "$HOME/menu.sh.new" ] && [ $(stat -c%s "$HOME/menu.sh.new" 2>/dev/null || echo 0) -gt 1000 ]; then
+                echo -e "${GREEN}${BOLD}>> ✅ 下载成功！来源: $domain${NC}"
+                success=true
+                break
+            else
+                rm -f "$HOME/menu.sh.new"
+            fi
+        fi
+        echo -e "${YELLOW}${BOLD}>> 下载失败，尝试下一个源...${NC}"
+    done
+
+    if [ "$success" = false ]; then
+        echo -e "${RED}${BOLD}>> 💔 脚本更新失败，请稍后重试${NC}"
+        return
+    fi
+
+    # 备份当前脚本
+    cp "$HOME/menu.sh" "$HOME/menu.sh.bak" 2>/dev/null
+
+    # 替换脚本
+    mv "$HOME/menu.sh.new" "$HOME/menu.sh"
+    chmod +x "$HOME/menu.sh"
+
+    echo -e "${GREEN}${BOLD}>> ✅ 脚本更新成功！${NC}"
+    echo -e "${CYAN}${BOLD}>> 🔄 正在重启菜单...${NC}"
+    sleep 2
+    exec bash "$HOME/menu.sh"
+}
+
+# =========================================================================
+# 查看更新日志
+# =========================================================================
+show_update_log() {
+    clear
+    echo -e "${CYAN}${BOLD}==== 📋 更新日志 ====${NC}"
+    echo -e "${MAGENTA}${BOLD}SillyTavern-Termux 小红书专版${NC}"
+    echo -e "${YELLOW}${BOLD}最新更新：2025-07-01${NC}"
+    echo ""
+    echo -e "${GREEN}${BOLD}🎉 主要功能：${NC}"
+    echo -e "${BLUE}${BOLD}• 🚀 11个GitHub加速源，按测速排序${NC}"
+    echo -e "${BLUE}${BOLD}• ⚡ 优化下载超时，快速失败切换${NC}"
+    echo -e "${BLUE}${BOLD}• 🌐 网络监听设置（安全/共享模式）${NC}"
+    echo -e "${BLUE}${BOLD}• 🧩 酒馆插件管理（助手+记忆表格）${NC}"
+    echo -e "${BLUE}${BOLD}• 🔄 脚本自动更新功能${NC}"
+    echo -e "${BLUE}${BOLD}• 💕 小红书专版可爱界面${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}🔧 技术优化：${NC}"
+    echo -e "${BLUE}${BOLD}• Git浅克隆 + ZIP备用下载${NC}"
+    echo -e "${BLUE}${BOLD}• NPM阿里云镜像加速${NC}"
+    echo -e "${BLUE}${BOLD}• SSL验证跳过，解决连接问题${NC}"
+    echo -e "${BLUE}${BOLD}• 智能源测试和可用性检查${NC}"
+    echo ""
+    echo -e "${MAGENTA}${BOLD}💝 专为小红书姐妹们优化！${NC}"
+    echo -e "${CYAN}${BOLD}=================================${NC}"
+    press_any_key
+}
+
+# =========================================================================
 # 主菜单循环
 # =========================================================================
 while true; do
@@ -503,8 +668,9 @@ while true; do
     echo -e "${MAGENTA}${BOLD}4. 🍻 酒馆福利互助群：877957256${NC}"
     echo -e "${CYAN}${BOLD}5. 🌐 网络监听设置${NC}"
     echo -e "${BRIGHT_BLUE}${BOLD}6. 🧩 酒馆插件管理${NC}"
+    echo -e "${BRIGHT_MAGENTA}${BOLD}7. 🔄 脚本更新管理${NC}"
     echo -e "${CYAN}${BOLD}=================================${NC}"
-    echo -ne "${CYAN}${BOLD}💕 请选择操作（0-6）：${NC}"
+    echo -ne "${CYAN}${BOLD}💕 请选择操作（0-7）：${NC}"
     read -n1 choice; echo
     
     case "$choice" in
@@ -520,6 +686,7 @@ while true; do
         4) help_menu ;;
         5) network_config_menu ;;
         6) plugin_menu ;;
+        7) script_update_menu ;;
         *)
             echo -e "${RED}${BOLD}>> 😅 输入错误，请重新选择哦~${NC}"
             sleep 1
