@@ -188,26 +188,28 @@ simple_config_menu() {
 }
 
 # =========================================================================
-# 4. 问题求助
+# 4. 酒馆福利互助群
 # =========================================================================
 help_menu() {
     clear
-    echo -e "${CYAN}${BOLD}==== 💕 遇到问题了吗？ ====${NC}"
-    echo -e "${YELLOW}${BOLD}别担心！姐妹们都会遇到这些问题的~${NC}"
+    echo -e "${CYAN}${BOLD}==== 🍻 酒馆福利互助群 ====${NC}"
+    echo -e "${YELLOW}${BOLD}欢迎加入小红书姐妹们的专属群聊！${NC}"
     echo ""
-    echo -e "${GREEN}${BOLD}🆘 常见问题快速解决：${NC}"
-    echo -e "${BLUE}${BOLD}1. 启动失败 → 检查网络连接，重新安装${NC}"
-    echo -e "${BLUE}${BOLD}2. 无法访问 → 确保开启了网络监听${NC}"
-    echo -e "${BLUE}${BOLD}3. 运行卡住 → 重启Termux应用${NC}"
-    echo -e "${BLUE}${BOLD}4. 更新失败 → 检查网络，或重新安装${NC}"
+    echo -e "${GREEN}${BOLD}🍻 小红书姐妹专属群：${NC}"
+    echo -e "${BRIGHT_MAGENTA}${BOLD}    ✨ 877957256 ✨${NC}"
     echo ""
-    echo -e "${MAGENTA}${BOLD}📞 求助渠道：${NC}"
-    echo -e "${CYAN}${BOLD}• 小红书评论区留言${NC}"
-    echo -e "${CYAN}${BOLD}• QQ群：807134015（原作者群）${NC}"
-    echo -e "${CYAN}${BOLD}• 小红书姐妹专版QQ群：877957256${NC}"
-    echo -e "${CYAN}${BOLD}• 邮箱：print.yuhuan@gmail.com${NC}"
+    echo -e "${YELLOW}${BOLD}💕 群里有什么？${NC}"
+    echo -e "${CYAN}${BOLD}• 🎀 SillyTavern使用技巧分享${NC}"
+    echo -e "${CYAN}${BOLD}• 💝 优质角色卡资源${NC}"
+    echo -e "${CYAN}${BOLD}• 🌸 姐妹们的聊天心得${NC}"
+    echo -e "${CYAN}${BOLD}• 🆘 遇到问题互相帮助${NC}"
     echo ""
-    echo -e "${YELLOW}${BOLD}💡 记住：遇到问题不要慌，总有解决办法的！${NC}"
+    echo -e "${GREEN}${BOLD}📞 其他求助渠道：${NC}"
+    echo -e "${BLUE}${BOLD}• QQ群：807134015（原作者群）${NC}"
+    echo -e "${BLUE}${BOLD}• 小红书评论区留言${NC}"
+    echo -e "${BLUE}${BOLD}• 邮箱：print.yuhuan@gmail.com${NC}"
+    echo ""
+    echo -e "${YELLOW}${BOLD}💡 快来加群和姐妹们一起玩耍吧！${NC}"
     press_any_key
 }
 
@@ -226,7 +228,7 @@ while true; do
     echo -e "${GREEN}${BOLD}1. 🚀 启动 SillyTavern${NC}"
     echo -e "${BLUE}${BOLD}2. 🔄 更新 SillyTavern${NC}"
     echo -e "${YELLOW}${BOLD}3. 🎀 简单配置${NC}"
-    echo -e "${MAGENTA}${BOLD}4. 🆘 遇到问题？${NC}"
+    echo -e "${MAGENTA}${BOLD}4. 🍻 酒馆福利互助群：877957256${NC}"
     echo -e "${CYAN}${BOLD}=================================${NC}"
     echo -ne "${CYAN}${BOLD}💕 请选择操作（0-4）：${NC}"
     read -n1 choice; echo
