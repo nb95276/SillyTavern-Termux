@@ -60,18 +60,34 @@ curl -k -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.co
 
 ## 🚨 **还是下载失败？**
 
-### 🛠️ **终极解决方案**
-```bash
-# 如果上面8个方法都失败，试试wget
-wget --no-check-certificate -O Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+### 💡 **问题分析**
+国内用户的主要问题是**GitHub连接困难**，npm源一般都没问题！
 
-# 或者检查网络连接
-ping -c 3 8.8.8.8
+### 🛠️ **GitHub连接解决方案**
+```bash
+# 方法1：使用wget替代curl
+wget --no-check-certificate -O Install.sh https://gitproxy.click/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 方法2：检查DNS设置
+echo "nameserver 8.8.8.8" > $PREFIX/etc/resolv.conf
+echo "nameserver 114.114.114.114" >> $PREFIX/etc/resolv.conf
+
+# 方法3：测试网络连通性
+ping -c 3 gitproxy.click
+```
+
+### 🔧 **如果安装到一半失败**
+```bash
+# 重新运行安装脚本，会自动跳过已完成的步骤
+bash Install.sh
+
+# 或者手动安装依赖（如果只是最后一步失败）
+cd ~/SillyTavern && npm install
 ```
 
 ### 🆘 **实在不行就求助**
-- **QQ群**：807134015（原作者群）
-- **小红书姐妹专版QQ群**：877957256
+- **酒馆福利互助群**：877957256（推荐）
+- **原作者QQ群**：807134015
 - **小红书评论区**：留言描述问题
 
 ## 🔧 与原版的区别

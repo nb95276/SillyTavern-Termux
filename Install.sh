@@ -378,40 +378,27 @@ echo -e "${CYAN}${BOLD}⏰ 这个步骤可能需要5-10分钟，请耐心等待�
 cd "$HOME/SillyTavern" || { echo -e "${RED}${BOLD}>> 💔 进入 SillyTavern 目录失败！${NC}"; exit 1; }
 rm -rf node_modules
 
-# NPM镜像源列表（按推荐程度排序）
-NPM_REGISTRIES=(
-    "https://registry.npmmirror.com/"
-    "https://mirrors.tuna.tsinghua.edu.cn/npm/"
-    "https://mirrors.cloud.tencent.com/npm/"
-    "https://mirrors.huaweicloud.com/repository/npm/"
-    "https://registry.npmjs.org/"
-)
+# 设置国内npm镜像源（阿里云，稳定快速）
+echo -e "${CYAN}${BOLD}>> 🔧 配置npm镜像源...${NC}"
+npm config set registry https://registry.npmmirror.com/
+export NODE_ENV=production
 
-# 智能选择最快的npm源
-echo -e "${CYAN}${BOLD}>> 🔍 正在选择最快的npm源...${NC}"
-npm_success=false
-for registry in "${NPM_REGISTRIES[@]}"; do
-    registry_name=$(echo "$registry" | sed 's|https://||' | sed 's|/.*||')
-    echo -e "${YELLOW}${BOLD}>> 尝试源: $registry_name${NC}"
+echo -e "${CYAN}${BOLD}>> 📦 开始安装依赖包，请不要关闭应用...${NC}"
+echo -e "${YELLOW}${BOLD}>> 💡 使用阿里云镜像，国内用户下载更快~${NC}"
 
-    npm config set registry "$registry"
-    export NODE_ENV=production
+if ! npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev; then
+    echo -e "${YELLOW}${BOLD}>> ⚠️ 首次安装失败，尝试清理缓存重试...${NC}"
+    npm cache clean --force 2>/dev/null || true
+    rm -rf node_modules package-lock.json 2>/dev/null
 
-    echo -e "${CYAN}${BOLD}>> 📦 开始安装依赖包，请不要关闭应用...${NC}"
-    if timeout 600 npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev; then
-        echo -e "${GREEN}${BOLD}>> ✅ 依赖安装成功！使用源: $registry_name${NC}"
-        npm_success=true
-        break
-    else
-        echo -e "${YELLOW}${BOLD}>> ❌ 安装失败，尝试下一个源...${NC}"
-        rm -rf node_modules package-lock.json 2>/dev/null
+    if ! npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev; then
+        echo -e "${RED}${BOLD}>> 💔 依赖安装失败，请检查网络连接或稍后重试。${NC}"
+        echo -e "${CYAN}${BOLD}>> 💡 提示：可以稍后运行 'cd ~/SillyTavern && npm install' 手动安装${NC}"
+        exit 1
     fi
-done
-
-if [ "$npm_success" = false ]; then
-    echo -e "${RED}${BOLD}>> 💔 所有npm源都失败了，请检查网络连接。${NC}"
-    exit 1
 fi
+
+echo -e "${GREEN}${BOLD}>> ✅ 依赖安装成功！${NC}"
 echo -e "${GREEN}${BOLD}>> 🎉 步骤 8/8 完成：SillyTavern 依赖已安装。${NC}"
 
 # =========================================================================
