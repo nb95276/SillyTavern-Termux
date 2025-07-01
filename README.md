@@ -38,7 +38,35 @@ curl -O https://ghfast.top/https://raw.githubusercontent.com/nb95276/SillyTavern
 curl -O https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
 ```
 
-> 💡 **小贴士**：如果第一个命令失败，请尝试其他加速源！
+## 🚨 **下载失败？故障排除指南**
+
+### ❌ **SSL错误 (SSL_ERROR_SYSCALL)**
+```bash
+# 解决方案1：跳过SSL验证
+curl -k -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 解决方案2：更新证书
+pkg update && pkg install ca-certificates
+```
+
+### ❌ **下载文件为0字节**
+```bash
+# 解决方案1：使用wget
+wget -O Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 解决方案2：手动检查文件
+curl -fsSL -o Install.sh https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh
+ls -la Install.sh  # 检查文件大小
+bash Install.sh
+```
+
+### ❌ **网络连接超时**
+```bash
+# 解决方案：增加超时时间和重试
+curl --connect-timeout 30 --max-time 60 --retry 3 -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+```
+
+> 💡 **小贴士**：如果所有方法都失败，请在QQ群求助！
 
 ## 🔧 与原版的区别
 
