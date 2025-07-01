@@ -17,14 +17,14 @@ INSTALL_VERSION=20250701
 
 # ==== GitHub加速源列表 ====
 GITHUB_MIRRORS=(
-    "https://ghproxy.net/https://github.com"
-    "https://gh.ddlc.top/https://github.com"
     "https://ghfast.top/https://github.com"
     "https://gh.h233.eu.org/https://github.com"
     "https://ghproxy.cfd/https://github.com"
     "https://hub.gitmirror.com/https://github.com"
     "https://mirrors.chenby.cn/https://github.com"
     "https://github.com"
+    "https://gh.ddlc.top/https://github.com"
+    "https://ghproxy.net/https://github.com"
 )
 
 # ==== 智能下载函数 ====
