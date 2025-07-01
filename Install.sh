@@ -15,8 +15,11 @@ NC='\033[0m'
 # ==== 版本号 ====
 INSTALL_VERSION=20250701
 
-# ==== GitHub加速源列表 ====
+# ==== GitHub加速源列表（按测速排序） ====
 GITHUB_MIRRORS=(
+    "https://gitproxy.click/https://github.com"
+    "https://github.tbedu.top/https://github.com"
+    "https://gh.llkk.cc/https://github.com"
     "https://gh.ddlc.top/https://github.com"
     "https://ghfast.top/https://github.com"
     "https://gh.h233.eu.org/https://github.com"
@@ -26,6 +29,26 @@ GITHUB_MIRRORS=(
     "https://github.com"
     "https://ghproxy.net/https://github.com"
 )
+
+# ==== 快速测试加速源可用性 ====
+test_mirrors_speed() {
+    echo -e "${CYAN}${BOLD}>> 🚀 快速测试加速源可用性...${NC}"
+    local test_file="nb95276/SillyTavern-Termux/raw/main/README.md"
+
+    for mirror in "${GITHUB_MIRRORS[@]}"; do
+        local domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
+        local test_url="$mirror/$test_file"
+
+        # 快速测试（5秒超时）
+        if timeout 5 curl -k -fsSL --connect-timeout 3 --max-time 5 \
+            -o /dev/null "$test_url" 2>/dev/null; then
+            echo -e "${GREEN}${BOLD}>> ✅ $domain 可用${NC}"
+        else
+            echo -e "${RED}${BOLD}>> ❌ $domain 不可用${NC}"
+        fi
+    done
+    echo ""
+}
 
 # ==== 智能下载函数 ====
 smart_download() {
@@ -41,7 +64,7 @@ smart_download() {
         
         echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
         
-        if timeout 30 curl -k -fsSL --connect-timeout 10 --max-time 30 \
+        if timeout 15 curl -k -fsSL --connect-timeout 8 --max-time 15 \
             -o "$save_path" "$full_url" 2>/dev/null; then
             
             # 验证下载文件
@@ -223,7 +246,7 @@ if [ ! -f "$MENU_PATH" ]; then
         domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
         echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
 
-        if timeout 30 curl -k -fsSL --connect-timeout 10 --max-time 30 \
+        if timeout 15 curl -k -fsSL --connect-timeout 8 --max-time 15 \
             -o "$MENU_PATH" "$mirror/nb95276/SillyTavern-Termux/raw/main/menu.sh" 2>/dev/null; then
 
             if [ -f "$MENU_PATH" ] && [ $(stat -c%s "$MENU_PATH" 2>/dev/null || echo 0) -gt 100 ]; then
@@ -325,6 +348,13 @@ if ! npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev;
     exit 1
 fi
 echo -e "${GREEN}${BOLD}>> 🎉 步骤 8/8 完成：SillyTavern 依赖已安装。${NC}"
+
+# =========================================================================
+# 测试加速源可用性
+# =========================================================================
+echo -e "\n${CYAN}${BOLD}==== 🔍 测试加速源可用性 ====${NC}"
+echo -e "${YELLOW}${BOLD}💡 为了以后更新更顺畅，让我们测试一下各个加速源...${NC}"
+test_mirrors_speed
 
 # =========================================================================
 # 安装完成，进入主菜单
