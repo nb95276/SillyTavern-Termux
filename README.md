@@ -19,54 +19,51 @@
 
 ## 📱 一键安装命令
 
-### 🚀 推荐使用加速源（国内用户）
+### 🚀 国内用户专用（8个加速源任选）
 
 ```bash
-# 方法1：主力加速源（推荐）
-curl -O https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
-
-# 方法2：备用加速源1
-curl -O https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
-
-# 方法3：备用加速源2
-curl -O https://ghfast.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
-```
-
-### 🌍 原始链接（海外用户）
-
-```bash
-curl -O https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
-```
-
-## 🚨 **下载失败？故障排除指南**
-
-### ❌ **SSL错误 (SSL_ERROR_SYSCALL)**
-```bash
-# 解决方案1：跳过SSL验证
+# 🌟 方法1：ghproxy.net（主力推荐）
 curl -k -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
 
-# 解决方案2：更新证书
-pkg update && pkg install ca-certificates
+# 🔄 方法2：gh.ddlc.top
+curl -k -fsSL -o Install.sh https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# ⚡ 方法3：ghfast.top
+curl -k -fsSL -o Install.sh https://ghfast.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 🛡️ 方法4：gh.h233.eu.org
+curl -k -fsSL -o Install.sh https://gh.h233.eu.org/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 🌐 方法5：ghproxy.cfd
+curl -k -fsSL -o Install.sh https://ghproxy.cfd/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 🔗 方法6：hub.gitmirror.com
+curl -k -fsSL -o Install.sh https://hub.gitmirror.com/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 🌸 方法7：mirrors.chenby.cn
+curl -k -fsSL -o Install.sh https://mirrors.chenby.cn/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 🌍 方法8：原始GitHub（海外用户）
+curl -k -fsSL -o Install.sh https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
 ```
 
-### ❌ **下载文件为0字节**
+> 💡 **使用建议**：从方法1开始尝试，如果失败就试下一个！
+
+## 🚨 **还是下载失败？**
+
+### 🛠️ **终极解决方案**
 ```bash
-# 解决方案1：使用wget
-wget -O Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+# 如果上面8个方法都失败，试试wget
+wget --no-check-certificate -O Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
 
-# 解决方案2：手动检查文件
-curl -fsSL -o Install.sh https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh
-ls -la Install.sh  # 检查文件大小
-bash Install.sh
+# 或者检查网络连接
+ping -c 3 8.8.8.8
 ```
 
-### ❌ **网络连接超时**
-```bash
-# 解决方案：增加超时时间和重试
-curl --connect-timeout 30 --max-time 60 --retry 3 -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
-```
-
-> 💡 **小贴士**：如果所有方法都失败，请在QQ群求助！
+### 🆘 **实在不行就求助**
+- **QQ群**：807134015（原作者群）
+- **小红书姐妹专版QQ群**：877957256
+- **小红书评论区**：留言描述问题
 
 ## 🔧 与原版的区别
 

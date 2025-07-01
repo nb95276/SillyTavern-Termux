@@ -41,7 +41,7 @@ smart_download() {
         
         echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
         
-        if timeout 30 curl -fsSL --connect-timeout 10 --max-time 30 \
+        if timeout 30 curl -k -fsSL --connect-timeout 10 --max-time 30 \
             -o "$save_path" "$full_url" 2>/dev/null; then
             
             # 验证下载文件
@@ -223,7 +223,7 @@ if [ ! -f "$MENU_PATH" ]; then
         domain=$(echo "$mirror" | sed 's|https://||' | cut -d'/' -f1)
         echo -e "${YELLOW}${BOLD}>> 尝试源: $domain${NC}"
 
-        if timeout 30 curl -fsSL --connect-timeout 10 --max-time 30 \
+        if timeout 30 curl -k -fsSL --connect-timeout 10 --max-time 30 \
             -o "$MENU_PATH" "$mirror/nb95276/SillyTavern-Termux/raw/main/menu.sh" 2>/dev/null; then
 
             if [ -f "$MENU_PATH" ] && [ $(stat -c%s "$MENU_PATH" 2>/dev/null || echo 0) -gt 100 ]; then
