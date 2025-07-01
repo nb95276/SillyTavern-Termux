@@ -19,9 +19,26 @@
 
 ## 📱 一键安装命令
 
+### 🚀 推荐使用加速源（国内用户）
+
+```bash
+# 方法1：主力加速源（推荐）
+curl -O https://ghproxy.net/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 方法2：备用加速源1
+curl -O https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+
+# 方法3：备用加速源2
+curl -O https://ghfast.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
+```
+
+### 🌍 原始链接（海外用户）
+
 ```bash
 curl -O https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/main/Install.sh && bash Install.sh
 ```
+
+> 💡 **小贴士**：如果第一个命令失败，请尝试其他加速源！
 
 ## 🔧 与原版的区别
 
