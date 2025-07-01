@@ -377,12 +377,39 @@ echo -e "${CYAN}${BOLD}⏰ 这个步骤可能需要5-10分钟，请耐心等待�
 
 cd "$HOME/SillyTavern" || { echo -e "${RED}${BOLD}>> 💔 进入 SillyTavern 目录失败！${NC}"; exit 1; }
 rm -rf node_modules
-npm config set registry https://registry.npmmirror.com/
-export NODE_ENV=production
 
-echo -e "${CYAN}${BOLD}>> 📦 开始安装依赖包，请不要关闭应用...${NC}"
-if ! npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev; then
-    echo -e "${RED}${BOLD}>> 💔 依赖安装失败，请检查网络连接或日志信息。${NC}"
+# NPM镜像源列表（按推荐程度排序）
+NPM_REGISTRIES=(
+    "https://registry.npmmirror.com/"
+    "https://mirrors.tuna.tsinghua.edu.cn/npm/"
+    "https://mirrors.cloud.tencent.com/npm/"
+    "https://mirrors.huaweicloud.com/repository/npm/"
+    "https://registry.npmjs.org/"
+)
+
+# 智能选择最快的npm源
+echo -e "${CYAN}${BOLD}>> 🔍 正在选择最快的npm源...${NC}"
+npm_success=false
+for registry in "${NPM_REGISTRIES[@]}"; do
+    registry_name=$(echo "$registry" | sed 's|https://||' | sed 's|/.*||')
+    echo -e "${YELLOW}${BOLD}>> 尝试源: $registry_name${NC}"
+
+    npm config set registry "$registry"
+    export NODE_ENV=production
+
+    echo -e "${CYAN}${BOLD}>> 📦 开始安装依赖包，请不要关闭应用...${NC}"
+    if timeout 600 npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev; then
+        echo -e "${GREEN}${BOLD}>> ✅ 依赖安装成功！使用源: $registry_name${NC}"
+        npm_success=true
+        break
+    else
+        echo -e "${YELLOW}${BOLD}>> ❌ 安装失败，尝试下一个源...${NC}"
+        rm -rf node_modules package-lock.json 2>/dev/null
+    fi
+done
+
+if [ "$npm_success" = false ]; then
+    echo -e "${RED}${BOLD}>> 💔 所有npm源都失败了，请检查网络连接。${NC}"
     exit 1
 fi
 echo -e "${GREEN}${BOLD}>> 🎉 步骤 8/8 完成：SillyTavern 依赖已安装。${NC}"
