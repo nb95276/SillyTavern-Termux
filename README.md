@@ -19,7 +19,11 @@
 
 ## 📱 一键安装命令
 
-### 🚀 国内用户专用（11个加速源任选）
+### 🌟 **版本选择**
+- **🎀 v2.0 小白友好版**（推荐）：进度条显示、友好提示、简化菜单
+- **🛡️ v1.0 稳定版**（应急备用）：经典版本，稳定可靠
+
+### 🚀 v2.0 小白友好版（推荐）
 
 ```bash
 # 🌟 方法1：gitproxy.click（最快 788ms）
@@ -57,6 +61,24 @@ curl -k -fsSL -o Install.sh https://ghproxy.net/https://raw.githubusercontent.co
 ```
 
 > 💡 **使用建议**：从方法1开始尝试，如果失败就试下一个！
+
+### 🛡️ v1.0 稳定版（应急备用）
+
+```bash
+# 🌟 方法1：gh.ddlc.top（稳定版主力推荐）
+curl -k -fsSL -o Install.sh https://gh.ddlc.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/v1.0-stable/Install.sh && bash Install.sh
+
+# ⚡ 方法2：ghfast.top
+curl -k -fsSL -o Install.sh https://ghfast.top/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/v1.0-stable/Install.sh && bash Install.sh
+
+# 🛡️ 方法3：gh.h233.eu.org
+curl -k -fsSL -o Install.sh https://gh.h233.eu.org/https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/v1.0-stable/Install.sh && bash Install.sh
+
+# 🌍 方法4：原始GitHub（海外用户）
+curl -k -fsSL -o Install.sh https://raw.githubusercontent.com/nb95276/SillyTavern-Termux/v1.0-stable/Install.sh && bash Install.sh
+```
+
+> ⚠️ **何时使用v1.0**：如果v2.0版本遇到问题，可以使用v1.0稳定版
 
 ## 🚨 **还是下载失败？**
 
